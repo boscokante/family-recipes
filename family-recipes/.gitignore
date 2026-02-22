@@ -1,0 +1,56 @@
+# Xcode
+*.xcuserdata
+*.xcuserstate
+project.xcworkspace/xcuserdata/
+*.moved-aside
+*.pbxuser
+!default.pbxuser
+*.mode1v3
+!default.mode1v3
+*.mode2v3
+!default.mode2v3
+*.perspectivev3
+!default.perspectivev3
+
+# Build products
+build/
+DerivedData/
+*.ipa
+*.dSYM.zip
+*.dSYM
+
+# Archiving
+*.xcarchive
+
+# App Store Connect credentials (NEVER commit these!)
+.asc-credentials
+*.p8
+AuthKey_*
+!.asc-credentials.example
+
+# Swift Package Manager
+.build/
+Package.resolved
+
+# CocoaPods (if you ever add it)
+Pods/
+*.lock
+
+# Carthage
+Carthage/Build/
+
+# fastlane
+fastlane/report.xml
+fastlane/Preview.html
+fastlane/screenshots/**/*.png
+fastlane/test_output
+
+# Misc
+.DS_Store
+*.swp
+*.swo
+*~
+
+# Environment
+.env
+.env.local

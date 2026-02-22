@@ -1,0 +1,122 @@
+{
+  "id": "lucias-pizza-dough",
+  "title": "Lucia's Pizza Dough from Caputo",
+  "author": "Zachary",
+  "category": "Pizza",
+  "tags": ["italian", "dough", "pizza", "homemade"],
+  "prepTime": "20 minutes",
+  "cookTime": "Varies",
+  "totalTime": "Varies (includes rising time)",
+  "servings": "Makes enough for multiple pizzas",
+  "source": {
+    "type": "video",
+    "url": "https://www.youtube.com/watch?v=m9Z0MNw5D1o&t=61s",
+    "description": "Pizza dough making video from Lucia's"
+  },
+  "notes": [
+    "Use Antimo Caputo Gluten Free Pizza Flour 2.2lb for best results",
+    "Small cast iron skillet works well - don't oil so dough sticks to sides"
+  ],
+  "components": [
+    {
+      "name": "Pizza Dough",
+      "ingredients": [
+        { "item": "Water", "amount": "500g", "altAmount": "2 ⅛ cups" },
+        { "item": "Flour", "amount": "600g", "altAmount": "4 ¾ cups", "note": "Antimo Caputo recommended" },
+        { "item": "Yeast", "amount": "1.5g", "altAmount": "½ teaspoon" },
+        { "item": "Salt", "amount": "15g", "altAmount": "2 ½ teaspoons" },
+        { "item": "Olive Oil", "amount": "5g", "altAmount": "1 teaspoon" },
+        { "item": "Sugar", "amount": "1 tbsp" }
+      ],
+      "instructions": [
+        "Heat water (temperature not specified in notes - typically 105-110°F for yeast activation)",
+        "Follow video instructions from Lucia's"
+      ]
+    },
+    {
+      "name": "Pizza Sauce",
+      "yield": "Makes enough for 2 pizzas",
+      "ingredients": [
+        { "item": "Butter", "amount": "50g", "altAmount": "3 ½ tbsp" },
+        { "item": "White onion, grated", "amount": "100g", "altAmount": "1 small or ½ large" },
+        { "item": "Garlic, minced", "amount": "15-20g", "altAmount": "4-5 cloves" },
+        { "item": "Crushed tomatoes", "amount": "1 can", "altAmount": "28oz/800g" },
+        { "item": "Whole peeled tomatoes", "amount": "1 can", "altAmount": "28oz/800g", "note": "Best: Bianco DiNapoli Whole Peeled (available on Instacart)" },
+        { "item": "Tomato paste", "amount": "75g", "altAmount": "4 tbsp" },
+        { "item": "Salt", "amount": "10g", "altAmount": "2 ¼ tsp" },
+        { "item": "Sugar", "amount": "20g", "altAmount": "2 tbsp" },
+        { "item": "Dried oregano", "amount": "2g", "altAmount": "1 tsp" },
+        { "item": "Dried basil", "amount": "2g", "altAmount": "1 ½ tsp" },
+        { "item": "Red pepper/chili flakes", "amount": "2g", "altAmount": "1 ½ tsp" }
+      ]
+    }
+  ],
+  "toppingGuides": [
+    {
+      "name": "Standard Pizza",
+      "ingredients": [
+        { "item": "Dough", "amount": "150g" },
+        { "item": "Mushrooms", "amount": "100g" },
+        { "item": "Spinach", "amount": "50g" },
+        { "item": "Cheese", "amount": "100g" },
+        { "item": "Pepperoni", "amount": "60g" },
+        { "item": "Sausage", "amount": "25g" },
+        { "item": "Olives", "amount": "20g" }
+      ],
+      "tips": [
+        "Cook down spinach before adding",
+        "Cook down mushrooms before adding"
+      ]
+    },
+    {
+      "name": "Loaded Pizza",
+      "ingredients": [
+        { "item": "Dough", "amount": "200g" },
+        { "item": "Sauce", "amount": "220g" },
+        { "item": "Pepperoni", "amount": "45g" },
+        { "item": "Spinach (cooked down)", "amount": "80g" },
+        { "item": "Buffalo mozzarella", "amount": "55g" },
+        { "item": "Mushrooms", "amount": "65g" }
+      ]
+    }
+  ],
+  "links": [
+    {
+      "title": "Lucia's Pizza Dough Video",
+      "url": "https://www.youtube.com/watch?v=m9Z0MNw5D1o&t=61s"
+    }
+  ],
+  "images": [
+    {
+      "filename": "image1.png",
+      "description": "Adding toppings - mushrooms, spinach, and cheese on dough in pan"
+    },
+    {
+      "filename": "image2.png",
+      "description": "Caputo Fioreglut Gluten Free Flour bag - 1000g/2.2lb"
+    },
+    {
+      "filename": "image3.png",
+      "description": "Chef assembling deep dish pizza at Lucia's kitchen"
+    },
+    {
+      "filename": "image4.png",
+      "description": "Sealing the top layer of dough over the stuffed pizza"
+    },
+    {
+      "filename": "image5.png",
+      "description": "Working the dough edges in the cast iron pan"
+    },
+    {
+      "filename": "image6.png",
+      "description": "Finished deep dish pizza with spiral sauce pattern at Lucia's restaurant"
+    },
+    {
+      "filename": "image7.png",
+      "description": "Pouring tomato sauce over the cheese layer"
+    }
+  ],
+  "createdAt": "2025-12-14",
+  "updatedAt": "2025-12-14"
+}
+

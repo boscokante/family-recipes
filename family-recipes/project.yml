@@ -1,0 +1,73 @@
+name: KinFood
+options:
+  minimumXcodeGenVersion: 2.38.0
+  deploymentTarget:
+    iOS: "18.2"
+  createIntermediateGroups: true
+
+settings:
+  base:
+    SWIFT_VERSION: "5.0"
+    DEVELOPMENT_TEAM: 3L66A32827
+    CURRENT_PROJECT_VERSION: 2
+    MARKETING_VERSION: 1.0
+    TARGETED_DEVICE_FAMILY: "1,2,7"
+    CODE_SIGN_STYLE: Automatic
+  configs:
+    Debug:
+      SWIFT_ACTIVE_COMPILATION_CONDITIONS: DEBUG
+
+targets:
+  KinFood:
+    type: application
+    platform: iOS
+    sources:
+      - path: family-recipes
+        excludes:
+          - Info.plist
+    resources:
+      - family-recipes/Assets.xcassets
+      - family-recipes/Preview Content/Preview Assets.xcassets
+      - family-recipes/LaunchScreen.storyboard
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.electrospit.kinfood
+        INFOPLIST_FILE: family-recipes/Info.plist
+        GENERATE_INFOPLIST_FILE: "YES"
+        INFOPLIST_KEY_CFBundleDisplayName: KinFood
+
+  KinFoodTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - family-recipesTests
+    dependencies:
+      - target: KinFood
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.electrospit.kinfood.tests
+        GENERATE_INFOPLIST_FILE: "YES"
+
+  KinFoodUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources:
+      - family-recipesUITests
+    dependencies:
+      - target: KinFood
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: com.electrospit.kinfood.uitests
+        GENERATE_INFOPLIST_FILE: "YES"
+
+schemes:
+  KinFood:
+    build:
+      targets:
+        KinFood: all
+        KinFoodTests: [test]
+        KinFoodUITests: [test]
+    test:
+      targets:
+        - name: KinFoodTests
+        - name: KinFoodUITests
