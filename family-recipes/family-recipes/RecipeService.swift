@@ -59,7 +59,7 @@ class RecipeService: ObservableObject {
     }
     
     // Hardcoded recipe data - MVP approach (fully offline)
-    private static func makeHardcodedRecipes() -> [Recipe] {
+    static func makeHardcodedRecipes() -> [Recipe] {
         return [
         Recipe(
             id: 1,

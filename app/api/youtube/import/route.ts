@@ -17,6 +17,7 @@ import {
   createRecipeFromExtraction
 } from '@/lib/recipe-extractor'
 import { DEFAULT_FAMILY_MEMBERS } from '@/lib/allergies'
+import { fetchTranscriptSafe, fetchRecipeLinkIfNeeded } from '@/lib/recipe-scraper'
 
 export interface YouTubeImportRequest {
   url: string
@@ -103,7 +104,7 @@ export async function POST(request: Request): Promise<NextResponse<YouTubeImport
     // For now, we'll extract what we can from the URL and use AI to generate the recipe
     // based on common patterns in the video title
 
-    // Fetch video metadata using oEmbed
+    // 1. Fetch basic metadata using oEmbed (fast, gets title/channel)
     const oEmbedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
     let videoTitle = 'Unknown Recipe'
     let channelName = ''
@@ -115,25 +116,64 @@ export async function POST(request: Request): Promise<NextResponse<YouTubeImport
         const oEmbedData = await oEmbedRes.json()
         videoTitle = oEmbedData.title || videoTitle
         channelName = oEmbedData.author_name || ''
-
-        // Extract a description from the title for the AI to work with
-        videoDescription = oEmbedData.title || ''
+        videoDescription = oEmbedData.title || '' // Fallback to title
       }
     } catch (e) {
       console.warn('Could not fetch oEmbed data:', e)
     }
 
-    // If we can't get real description, we'll work with the title
-    // The AI will try to infer from common recipe video patterns
+    // 2. Try to fetch the full video description from the raw HTML page
+    // The oEmbed API does not return the description, which often contains the actual recipe.
+    try {
+      const htmlRes = await fetch(url, {
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept-Language': 'en-US,en;q=0.9'
+        }
+      })
+      
+      if (htmlRes.ok) {
+        const html = await htmlRes.text()
+        
+        // Extract the ytInitialPlayerResponse JSON blob from the HTML
+        const match = html.match(/ytInitialPlayerResponse\s*=\s*({.+?});/)
+        if (match && match[1]) {
+          const data = JSON.parse(match[1])
+          const shortDescription = data?.videoDetails?.shortDescription
+          if (shortDescription && shortDescription.length > 0) {
+            videoDescription = shortDescription
+          }
+          // Also update title and channel if oEmbed failed
+          if (videoTitle === 'Unknown Recipe' && data?.videoDetails?.title) {
+            videoTitle = data.videoDetails.title
+          }
+          if (!channelName && data?.videoDetails?.author) {
+            channelName = data.videoDetails.author
+          }
+        }
+      }
+    } catch (e) {
+      console.warn('Could not extract full description from YouTube HTML:', e)
+    }
+
+    // If we absolutely can't get a real description, we'll work with the title
     if (!videoDescription) {
       videoDescription = videoTitle
     }
+
+    // 3. Try to fetch transcript (fails often due to YouTube bot protections, but good when it works)
+    const transcript = await fetchTranscriptSafe(videoInfo.videoId)
+
+    // 4. Try to fetch linked recipes from description if it seems necessary
+    const linkedRecipeText = await fetchRecipeLinkIfNeeded(videoDescription)
 
     // Extract recipe from video content using AI
     const extractedRecipe = await extractRecipeFromVideo(
       videoTitle,
       videoDescription,
-      channelName
+      channelName,
+      transcript,
+      linkedRecipeText
     )
 
     // Adapt recipe for family allergies

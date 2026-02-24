@@ -12,11 +12,20 @@ extension RecipeService {
         do {
             let remote = try await MobileAPI.shared.fetchPublishedRecipes()
             guard !remote.isEmpty else { return }
-            recipes = remote
+
+            // Merge: server recipes win on conflicts, but keep any hardcoded
+            // recipes that don't exist on the server yet.
+            let hardcoded = Self.makeHardcodedRecipes()
+            var merged = remote
+            let remoteSlugs = Set(remote.map { $0.slug })
+            for recipe in hardcoded where !remoteSlugs.contains(recipe.slug) {
+                merged.append(recipe)
+            }
+
+            recipes = merged
             filterRecipes()
             saveCachedRecipes()
         } catch {
-            // Keep offline data if network is unavailable.
             print("Recipe refresh skipped: \(error.localizedDescription)")
         }
     }

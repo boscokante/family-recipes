@@ -9,7 +9,7 @@ settings:
   base:
     SWIFT_VERSION: "5.0"
     DEVELOPMENT_TEAM: 3L66A32827
-    CURRENT_PROJECT_VERSION: 2
+    CURRENT_PROJECT_VERSION: 4
     MARKETING_VERSION: 1.0
     TARGETED_DEVICE_FAMILY: "1,2,7"
     CODE_SIGN_STYLE: Automatic
@@ -35,6 +35,7 @@ targets:
         INFOPLIST_FILE: family-recipes/Info.plist
         GENERATE_INFOPLIST_FILE: "YES"
         INFOPLIST_KEY_CFBundleDisplayName: KinFood
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
 
   KinFoodTests:
     type: bundle.unit-test

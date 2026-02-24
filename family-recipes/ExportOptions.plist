@@ -18,10 +18,5 @@
     <false/>
     <key>manageAppVersionAndBuildNumber</key>
     <false/>
-    <key>provisioningProfiles</key>
-    <dict>
-        <key>com.electrospit.kinfood</key>
-        <string></string>
-    </dict>
 </dict>
 </plist>

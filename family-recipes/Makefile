@@ -38,14 +38,16 @@ ios-archive: ios-generate
 		-project "$(PROJECT)" \
 		-scheme "$(SCHEME)" \
 		-destination "generic/platform=iOS" \
-		-archivePath "$(ARCHIVE_PATH)"
+		-archivePath "$(ARCHIVE_PATH)" \
+		-allowProvisioningUpdates
 
 ios-export: ios-archive
 	@echo "📤 Exporting IPA..."
 	xcodebuild -exportArchive \
 		-archivePath "$(ARCHIVE_PATH)" \
 		-exportPath "$(IPA_PATH)" \
-		-exportOptionsPlist ExportOptions.plist
+		-exportOptionsPlist ExportOptions.plist \
+		-allowProvisioningUpdates
 
 ios-upload: ios-export
 	@echo "⬆️  Uploading to App Store Connect..."
@@ -54,6 +56,8 @@ ios-upload: ios-export
 		echo "   Run: make ios-setup-asc to see instructions"; \
 		exit 1; \
 	fi
+	@mkdir -p ~/.appstoreconnect/private_keys
+	@cp "$(ASC_PRIVATE_KEY_PATH)" ~/.appstoreconnect/private_keys/ 2>/dev/null || true
 	xcrun altool --upload-app \
 		--type ios \
 		--file "$(IPA_PATH)/KinFood.ipa" \

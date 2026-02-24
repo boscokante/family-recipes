@@ -16,6 +16,7 @@ struct RecipeListView: View {
     @State private var isImporting = false
     @State private var hasBootstrapped = false
     @State private var selectedFamilyMemberIds: Set<Int> = [1, 2, 3]
+    @FocusState private var isSearchFocused: Bool
     
     var body: some View {
         NavigationView {
@@ -27,6 +28,7 @@ struct RecipeListView: View {
                     TextField("Search recipes...", text: $recipeService.searchText)
                         .textFieldStyle(.plain)
                         .autocorrectionDisabled()
+                        .focused($isSearchFocused)
                 }
                 .padding()
                 .background(Color(.systemGray6))
@@ -55,6 +57,7 @@ struct RecipeListView: View {
                         }
                     }
                     .listStyle(.plain)
+                    .scrollDismissesKeyboard(.immediately)
                 }
             }
             .navigationTitle("\(AppSettings.shared.displayFamilyName) Recipes")
@@ -83,79 +86,15 @@ struct RecipeListView: View {
                 }
             }
             .sheet(isPresented: $showImportSheet) {
-                NavigationView {
-                    VStack(alignment: .leading, spacing: 16) {
-                        Text("Paste a YouTube recipe link. The backend will extract + adapt it, then it appears in your library and is cached offline.")
-                            .font(.subheadline)
-                            .foregroundColor(.secondary)
-
-                        TextField("https://www.youtube.com/watch?v=...", text: $importURL)
-                            .textInputAutocapitalization(.never)
-                            .autocorrectionDisabled()
-                            .textFieldStyle(.roundedBorder)
-
-                        VStack(alignment: .leading, spacing: 8) {
-                            Text("Adapt for \(AppSettings.shared.displayFamilyName)")
-                                .font(.caption)
-                                .foregroundColor(.secondary)
-
-                            Toggle("Bosko (dairy, gluten, cashew)", isOn: bindingForMember(1))
-                            Toggle("Maya (citrus, shellfish)", isOn: bindingForMember(2))
-                            Toggle("Che (dairy, gluten, fish, citrus)", isOn: bindingForMember(3))
-
-                            HStack {
-                                Button("All Family Members") {
-                                    selectedFamilyMemberIds = [1, 2, 3]
-                                }
-                                .font(.caption)
-                                .buttonStyle(.bordered)
-
-                                Button("Clear") {
-                                    selectedFamilyMemberIds = []
-                                }
-                                .font(.caption)
-                                .buttonStyle(.bordered)
-                            }
-                        }
-
-                        if let importError, !importError.isEmpty {
-                            Text(importError)
-                                .font(.caption)
-                                .foregroundColor(.red)
-                        }
-
-                        Button {
-                            Task {
-                                await runImport()
-                            }
-                        } label: {
-                            HStack {
-                                if isImporting {
-                                    ProgressView()
-                                }
-                                Text(isImporting ? "Importing..." : "Import Recipe")
-                            }
-                            .frame(maxWidth: .infinity)
-                        }
-                        .buttonStyle(.borderedProminent)
-                        .disabled(
-                            importURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
-                            isImporting ||
-                            selectedFamilyMemberIds.isEmpty
-                        )
-
-                        Spacer()
-                    }
-                    .padding()
-                    .navigationTitle("YouTube Import")
-                    .toolbar {
-                        ToolbarItem(placement: .navigationBarLeading) {
-                            Button("Cancel") {
-                                showImportSheet = false
-                            }
-                        }
-                    }
-                }
+                ImportSheetView(
+                    importURL: $importURL,
+                    importError: $importError,
+                    isImporting: $isImporting,
+                    selectedFamilyMemberIds: $selectedFamilyMemberIds,
+                    onCancel: { showImportSheet = false },
+                    onImport: { Task { await runImport() } },
+                    bindingForMember: bindingForMember
+                )
             }
             .sheet(isPresented: $showSettingsSheet) {
                 SettingsView()
@@ -243,6 +182,99 @@ struct RecipeRowView: View {
             }
         }
         .padding(.vertical, 4)
+    }
+}
+
+struct ImportSheetView: View {
+    @Binding var importURL: String
+    @Binding var importError: String?
+    @Binding var isImporting: Bool
+    @Binding var selectedFamilyMemberIds: Set<Int>
+    let onCancel: () -> Void
+    let onImport: () -> Void
+    let bindingForMember: (Int) -> Binding<Bool>
+
+    @FocusState private var isURLFocused: Bool
+
+    var body: some View {
+        NavigationView {
+            ScrollView {
+                VStack(alignment: .leading, spacing: 16) {
+                    Text("Paste a YouTube recipe link. The backend will extract + adapt it, then it appears in your library and is cached offline.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    TextField("https://www.youtube.com/watch?v=...", text: $importURL)
+                        .textInputAutocapitalization(.never)
+                        .autocorrectionDisabled()
+                        .textFieldStyle(.roundedBorder)
+                        .focused($isURLFocused)
+                        .submitLabel(.done)
+                        .onSubmit { isURLFocused = false }
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("Adapt for \(AppSettings.shared.displayFamilyName)")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Toggle("Bosko (dairy, gluten, cashew)", isOn: bindingForMember(1))
+                        Toggle("Maya (citrus, shellfish)", isOn: bindingForMember(2))
+                        Toggle("Che (dairy, gluten, fish, citrus)", isOn: bindingForMember(3))
+
+                        HStack {
+                            Button("All Family Members") {
+                                selectedFamilyMemberIds = [1, 2, 3]
+                            }
+                            .font(.caption)
+                            .buttonStyle(.bordered)
+
+                            Button("Clear") {
+                                selectedFamilyMemberIds = []
+                            }
+                            .font(.caption)
+                            .buttonStyle(.bordered)
+                        }
+                    }
+
+                    if let importError, !importError.isEmpty {
+                        Text(importError)
+                            .font(.caption)
+                            .foregroundColor(.red)
+                    }
+
+                    Button {
+                        isURLFocused = false
+                        onImport()
+                    } label: {
+                        HStack {
+                            if isImporting {
+                                ProgressView()
+                            }
+                            Text(isImporting ? "Importing..." : "Import Recipe")
+                        }
+                        .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(.borderedProminent)
+                    .disabled(
+                        importURL.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+                        isImporting ||
+                        selectedFamilyMemberIds.isEmpty
+                    )
+                }
+                .padding()
+            }
+            .scrollDismissesKeyboard(.interactively)
+            .navigationTitle("YouTube Import")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cancel") { onCancel() }
+                }
+                ToolbarItem(placement: .keyboard) {
+                    Button("Done") { isURLFocused = false }
+                        .frame(maxWidth: .infinity, alignment: .trailing)
+                }
+            }
+        }
     }
 }
 

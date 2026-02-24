@@ -29,7 +29,7 @@ const recipeSchema = z.object({
     name: z.string().describe('Ingredient name'),
     notes: z.string().optional().describe('Additional notes about the ingredient')
   })).describe('List of ingredients needed'),
-  instructions: z.array(z.string()).describe('Step-by-step cooking instructions'),
+  instructions: z.array(z.string()).describe('Step-by-step cooking instructions. Must be an array of plain strings, NOT objects.'),
   tips: z.string().optional().describe('Cooking tips and notes'),
   story: z.string().optional().describe('Background/story about the recipe if available'),
   tags: z.array(z.string()).optional().describe('Tags for the recipe')
@@ -61,17 +61,19 @@ export interface AdaptedRecipe extends ExtractedRecipe {
 export async function extractRecipeFromVideo(
   videoTitle: string,
   videoDescription: string,
-  channelName?: string
+  channelName?: string,
+  transcript?: string,
+  linkedRecipeText?: string
 ): Promise<ExtractedRecipe> {
-  const systemPrompt = `You are a recipe extraction assistant. Your task is to parse recipe information from YouTube video titles and descriptions.
+  const systemPrompt = `You are a recipe extraction assistant. Your task is to parse recipe information from YouTube video metadata (title, description, transcript) and optional linked recipe text.
 
 Instructions:
-1. Extract the recipe title, ingredients, and instructions from the provided content
-2. If the content doesn't contain a clear recipe, try to infer from the title and description
-3. Standardize ingredient amounts and names
-4. Create clear, numbered cooking instructions
-5. Identify cuisine type and category when possible
-6. If information is missing, make reasonable estimates or leave optional fields empty
+1. Extract the recipe title, ingredients, and instructions from the provided content. Focus strongly on the description and any linked recipe text, as these are the most reliable. If those are missing or sparse, use the transcript.
+2. If the content doesn't contain a clear recipe, try to infer from the available context.
+3. Standardize ingredient amounts and names.
+4. Create clear, numbered cooking instructions.
+5. Identify cuisine type and category when possible.
+6. If information is missing, make reasonable estimates or leave optional fields empty.
 
 For ingredients:
 - Use standard measurements (cups, tablespoons, teaspoons, grams, ounces)
@@ -85,13 +87,17 @@ For instructions:
 
 Be thorough and accurate - this is for a family recipe collection!`
 
-  const userPrompt = `Extract the recipe from this YouTube video:
+  const userPrompt = `Extract the recipe from this YouTube video context:
 
 Title: ${videoTitle}
-${channelName ? `Channel: ${channelName}` : ''}
+${channelName ? `Channel: ${channelName}\n` : ''}
 
 Description:
-${videoDescription}
+${videoDescription || "No description available"}
+
+${transcript ? `\nTranscript snippet:\n${transcript.substring(0, 10000)}` : ''}
+
+${linkedRecipeText ? `\nLinked Recipe Text:\n${linkedRecipeText.substring(0, 10000)}` : ''}
 
 Please extract all recipe information including ingredients with amounts and step-by-step instructions.`
 
@@ -400,11 +406,15 @@ function generateAdaptationNotesForRecipe(
  * Generate a slug from the recipe title
  */
 export function generateSlug(title: string): string {
-  return title
+  const baseSlug = title
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-+|-+$/g, '')
-    .substring(0, 60)
+    .substring(0, 50)
+    
+  // Append a short random string to guarantee uniqueness
+  const randomSuffix = Math.random().toString(36).substring(2, 7)
+  return `${baseSlug}-${randomSuffix}`
 }
 
 /**
